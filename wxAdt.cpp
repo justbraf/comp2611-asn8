@@ -2,8 +2,10 @@
 
 #ifndef WX_PRECOMP
     #include <wx/wx.h>
+    #include <wx/spinctrl.h>
 #endif
 
+#include "dialogBox.h"
 #include "Queue.h"
 #include "PQueue.h"
 #include "Stack.h"
@@ -551,15 +553,27 @@ void AdtFrame::OnDisplayFile(wxCommandEvent& event){
 // ======================= Queue menu functions ======================= 
 void AdtFrame::OnCreateQueue(wxCommandEvent& event){
     // create a new Queue
-    // rec insertRec;
-    // insertRec.rank = 14;
-    // insertRec.name = "John Brown";
-    // insertRec.nationality = "Bajan";
-    // insertRec.score = 456;
-    // insertRec.opponent = "Bajan";
-    // insertRec.year = 2011;
-    dataQ->enqueue(14, "John Brown", "Bajan", 456, "Bajan", 2011);
-    SetStatusText("Inserted new record in Queue");
+    rec insertRec;
+
+    dialogBox* inputDialog = new dialogBox("Insert a new item into the Queue", wxPoint(200,200), wxSize(310,375));
+    if (inputDialog->ShowModal() == wxID_OK){
+
+        insertRec.rank = inputDialog->rankSpinBox->GetValue();
+        strncpy(insertRec.name, (const char*)inputDialog->nameTextBox->GetValue().mb_str(), 20);
+        strncpy(insertRec.nationality, (const char*)inputDialog->nationalityComboBox->GetValue().mb_str(), 20);
+        insertRec.score = inputDialog->scoreSpinBox->GetValue();
+        strncpy(insertRec.opponent, (const char*)inputDialog->opponentComboBox->GetValue().mb_str(), 15);
+        insertRec.year = inputDialog->yearSpinBox->GetValue();
+
+        mainEditBox->Clear();
+        mainEditBox->AppendText(stringifyRecord(insertRec));
+        dataQ->enqueue(insertRec.rank, insertRec.name, insertRec.nationality, insertRec.score, insertRec.opponent, insertRec.year);
+    }
+    else {
+        inputDialog->Close();
+    }
+    inputDialog->Destroy();
+    SetStatusText("Inserted new record into the Queue");
 }
 
 void AdtFrame::OnAddData(wxCommandEvent& event){
@@ -639,7 +653,7 @@ void AdtFrame::OnDequeue(wxCommandEvent& event){
     mainEditBox->Clear();
     string record = dataQ->dequeue();
     if (record != "Queue is empty"){
-        mainEditBox->AppendText("Removing record from the Head of the Queue\n\n");
+        mainEditBox->AppendText("Removing the following record from the Head of the Queue\n\n");
         string heading = "Rank\tName\t\tNationality\t\tScore\t\tOpponent\t\tYear\n";
         heading.append("===================================================================\n");
         wxString headingLine(heading.c_str(), wxConvUTF8);
@@ -653,6 +667,27 @@ void AdtFrame::OnDequeue(wxCommandEvent& event){
 // ======================= Deque menu functions ======================= 
 void AdtFrame::OnCreateDeque(wxCommandEvent& event){
     // Create a new Deque
+    rec insertRec;
+
+    dialogBox* inputDialog = new dialogBox("Insert a new item at the front of the Deque", wxPoint(200,200), wxSize(310,375));
+    if (inputDialog->ShowModal() == wxID_OK){
+
+        insertRec.rank = inputDialog->rankSpinBox->GetValue();
+        strncpy(insertRec.name, (const char*)inputDialog->nameTextBox->GetValue().mb_str(), 20);
+        strncpy(insertRec.nationality, (const char*)inputDialog->nationalityComboBox->GetValue().mb_str(), 20);
+        insertRec.score = inputDialog->scoreSpinBox->GetValue();
+        strncpy(insertRec.opponent, (const char*)inputDialog->opponentComboBox->GetValue().mb_str(), 15);
+        insertRec.year = inputDialog->yearSpinBox->GetValue();
+
+        mainEditBox->Clear();
+        mainEditBox->AppendText(stringifyRecord(insertRec));
+        dataDQ->push_front(insertRec.rank, insertRec.name, insertRec.nationality, insertRec.score, insertRec.opponent, insertRec.year);
+    }
+    else {
+        inputDialog->Close();
+    }
+    inputDialog->Destroy();
+    SetStatusText("Inserted new record at the front of the Deque");
 }
 
 void AdtFrame::OnAddHead(wxCommandEvent& event){
@@ -788,6 +823,28 @@ void AdtFrame::OnDequeueTail(wxCommandEvent& event){
 // =======================  Priority Queue menu functions ======================= 
 void AdtFrame::OnCreatePQ(wxCommandEvent& event){
     // create a new Priority Queue
+    rec insertRec;
+
+    dialogBox* inputDialog = new dialogBox("Insert a new item into the Priority Queue", wxPoint(200,200), wxSize(310,375));
+    if (inputDialog->ShowModal() == wxID_OK){
+
+        insertRec.rank = inputDialog->rankSpinBox->GetValue();
+        strncpy(insertRec.name, (const char*)inputDialog->nameTextBox->GetValue().mb_str(), 20);
+        strncpy(insertRec.nationality, (const char*)inputDialog->nationalityComboBox->GetValue().mb_str(), 20);
+        insertRec.score = inputDialog->scoreSpinBox->GetValue();
+        strncpy(insertRec.opponent, (const char*)inputDialog->opponentComboBox->GetValue().mb_str(), 15);
+        insertRec.year = inputDialog->yearSpinBox->GetValue();
+
+        mainEditBox->Clear();
+        mainEditBox->AppendText(stringifyRecord(insertRec));
+        dataPQ->enqueue(insertRec.rank, insertRec.name, insertRec.nationality, insertRec.score, insertRec.opponent, insertRec.year);
+    }
+    else {
+        inputDialog->Close();
+    }
+    inputDialog->Destroy();
+    SetStatusText("Inserted new record into the Priority Queue");
+
 }
 
 void AdtFrame::OnAddDataPQ(wxCommandEvent& event){
@@ -879,6 +936,27 @@ void AdtFrame::OnDequeuePQ(wxCommandEvent& event){
 // =======================  Stack menu ======================= 
 void AdtFrame::OnCreateStack(wxCommandEvent& event){
     // Create a new Stack
+    rec insertRec;
+
+    dialogBox* inputDialog = new dialogBox("Insert a new item into the Stack", wxPoint(200,200), wxSize(310,375));
+    if (inputDialog->ShowModal() == wxID_OK){
+
+        insertRec.rank = inputDialog->rankSpinBox->GetValue();
+        strncpy(insertRec.name, (const char*)inputDialog->nameTextBox->GetValue().mb_str(), 20);
+        strncpy(insertRec.nationality, (const char*)inputDialog->nationalityComboBox->GetValue().mb_str(), 20);
+        insertRec.score = inputDialog->scoreSpinBox->GetValue();
+        strncpy(insertRec.opponent, (const char*)inputDialog->opponentComboBox->GetValue().mb_str(), 15);
+        insertRec.year = inputDialog->yearSpinBox->GetValue();
+
+        mainEditBox->Clear();
+        mainEditBox->AppendText(stringifyRecord(insertRec));
+        dataStack->push(insertRec.rank, insertRec.name, insertRec.nationality, insertRec.score, insertRec.opponent, insertRec.year);
+    }
+    else {
+        inputDialog->Close();
+    }
+    inputDialog->Destroy();
+    SetStatusText("Inserted new record into the Stack");
 }
 
 void AdtFrame::OnPop(wxCommandEvent& event){
@@ -942,6 +1020,27 @@ void AdtFrame::OnDisplayAllS(wxCommandEvent& event){
 // =======================  BST menu ======================= 
 void AdtFrame::OnCreateBST(wxCommandEvent& event){
     // Create a new BST
+    rec insertRec;
+
+    dialogBox* inputDialog = new dialogBox("Insert a new item into the Binary Search Tree", wxPoint(200,200), wxSize(310,375));
+    if (inputDialog->ShowModal() == wxID_OK){
+
+        insertRec.rank = inputDialog->rankSpinBox->GetValue();
+        strncpy(insertRec.name, (const char*)inputDialog->nameTextBox->GetValue().mb_str(), 20);
+        strncpy(insertRec.nationality, (const char*)inputDialog->nationalityComboBox->GetValue().mb_str(), 20);
+        insertRec.score = inputDialog->scoreSpinBox->GetValue();
+        strncpy(insertRec.opponent, (const char*)inputDialog->opponentComboBox->GetValue().mb_str(), 15);
+        insertRec.year = inputDialog->yearSpinBox->GetValue();
+
+        mainEditBox->Clear();
+        mainEditBox->AppendText(stringifyRecord(insertRec));
+        dataBST->insert(insertRec.rank, insertRec.name, insertRec.nationality, insertRec.score, insertRec.opponent, insertRec.year);
+    }
+    else {
+        inputDialog->Close();
+    }
+    inputDialog->Destroy();
+    SetStatusText("Inserted new record into the Binary Search Tree");
 }
 
 void AdtFrame::OnAddDataBST(wxCommandEvent& event){
@@ -1037,6 +1136,7 @@ void AdtFrame::OnCreateAVL(wxCommandEvent& event){
 
 void AdtFrame::OnAddDataAVL(wxCommandEvent& event){
     // Add an item to the AVL
+    // Austrailia players only********************************************************
 }
 
 void AdtFrame::OnDeleteDataAVL(wxCommandEvent& event){
@@ -1062,6 +1162,7 @@ void AdtFrame::OnCreateHeap(wxCommandEvent& event){
 
 void AdtFrame::OnAddDataHeap(wxCommandEvent& event){
     // Add an item to the Heap
+    // South Africa players only********************************************************
 }
 
 void AdtFrame::OnDeleteDataHeap(wxCommandEvent& event){
@@ -1083,6 +1184,7 @@ void AdtFrame::OnCreateRB(wxCommandEvent& event){
 
 void AdtFrame::OnAddDataRB(wxCommandEvent& event){
     // Add an item to the RB
+    // England players only********************************************************
 }
 
 void AdtFrame::OnDeleteDataRB(wxCommandEvent& event){
@@ -1108,6 +1210,7 @@ void AdtFrame::OnCreateSplay(wxCommandEvent& event){
 
 void AdtFrame::OnAddDataSplay(wxCommandEvent& event){
     // Add an item to the Splay
+    // India and Pakistan players only********************************************************
 }
 
 void AdtFrame::OnDeleteDataSplay(wxCommandEvent& event){
