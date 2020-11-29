@@ -1,15 +1,6 @@
 #ifndef DIALOGBOX_H
 #define DIALOGBOX_H
 
-struct record {
-     int rank;
-     wxString name;
-     wxString nationality;
-     int score;
-     wxString opponent;
-     int year;
-};
-
 class dialogBox: public wxDialog{
     public:
         dialogBox(const wxString& title, const wxPoint& pos, const wxSize& size);

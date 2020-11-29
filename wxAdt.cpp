@@ -6,11 +6,13 @@
 #endif
 
 #include "dialogBox.h"
+#include "removeDialogBox.h"
 #include "Queue.h"
 #include "PQueue.h"
 #include "Stack.h"
 #include "Deque.h"
 #include "BSTree.h"
+#include "AVLTree.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -31,6 +33,7 @@ PQueue* dataPQ = new PQueue();
 Stack* dataStack = new Stack();
 Deque* dataDQ = new Deque();
 BSTree* dataBST = new BSTree();
+AVLTree* dataAVL = new AVLTree();
 
 class AdtApp: public wxApp{
     // application to start
@@ -555,7 +558,7 @@ void AdtFrame::OnCreateQueue(wxCommandEvent& event){
     // create a new Queue
     rec insertRec;
 
-    dialogBox* inputDialog = new dialogBox("Insert a new item into the Queue", wxPoint(200,200), wxSize(310,375));
+    dialogBox* inputDialog = new dialogBox("Inserting into the Queue", wxPoint(200,200), wxSize(310,375));
     if (inputDialog->ShowModal() == wxID_OK){
 
         insertRec.rank = inputDialog->rankSpinBox->GetValue();
@@ -669,7 +672,7 @@ void AdtFrame::OnCreateDeque(wxCommandEvent& event){
     // Create a new Deque
     rec insertRec;
 
-    dialogBox* inputDialog = new dialogBox("Insert a new item at the front of the Deque", wxPoint(200,200), wxSize(310,375));
+    dialogBox* inputDialog = new dialogBox("Inserting at the front of the Deque", wxPoint(200,200), wxSize(310,375));
     if (inputDialog->ShowModal() == wxID_OK){
 
         insertRec.rank = inputDialog->rankSpinBox->GetValue();
@@ -825,7 +828,7 @@ void AdtFrame::OnCreatePQ(wxCommandEvent& event){
     // create a new Priority Queue
     rec insertRec;
 
-    dialogBox* inputDialog = new dialogBox("Insert a new item into the Priority Queue", wxPoint(200,200), wxSize(310,375));
+    dialogBox* inputDialog = new dialogBox("Inserting into the Priority Queue", wxPoint(200,200), wxSize(310,375));
     if (inputDialog->ShowModal() == wxID_OK){
 
         insertRec.rank = inputDialog->rankSpinBox->GetValue();
@@ -938,7 +941,7 @@ void AdtFrame::OnCreateStack(wxCommandEvent& event){
     // Create a new Stack
     rec insertRec;
 
-    dialogBox* inputDialog = new dialogBox("Insert a new item into the Stack", wxPoint(200,200), wxSize(310,375));
+    dialogBox* inputDialog = new dialogBox("Inserting into the Stack", wxPoint(200,200), wxSize(310,375));
     if (inputDialog->ShowModal() == wxID_OK){
 
         insertRec.rank = inputDialog->rankSpinBox->GetValue();
@@ -1022,7 +1025,7 @@ void AdtFrame::OnCreateBST(wxCommandEvent& event){
     // Create a new BST
     rec insertRec;
 
-    dialogBox* inputDialog = new dialogBox("Insert a new item into the Binary Search Tree", wxPoint(200,200), wxSize(310,375));
+    dialogBox* inputDialog = new dialogBox("Inserting into the BST", wxPoint(200,200), wxSize(310,375));
     if (inputDialog->ShowModal() == wxID_OK){
 
         insertRec.rank = inputDialog->rankSpinBox->GetValue();
@@ -1069,9 +1072,21 @@ void AdtFrame::OnAddDataBST(wxCommandEvent& event){
 
 void AdtFrame::OnDeleteDataBST(wxCommandEvent& event){
     // Delete an item from the BST
+    int theRank;
     mainEditBox->Clear();
-    dataBST->remove(33); // test delete record with rank 33
-    mainEditBox->AppendText("Record with rank: 33 removed");
+    removeDialogBox* removeDialog = new removeDialogBox("Select rank to remove", wxPoint(200,200), wxSize(310,175));
+    if (removeDialog->ShowModal() == wxID_OK){
+        theRank = removeDialog->rankSpinBox->GetValue();
+        dataBST->remove(theRank);
+    }
+    else {
+    removeDialog->Close();
+    }
+    removeDialog->Destroy();
+    wxString str ="Record with rank ";
+    str.append(to_string(theRank));
+    str.append(" removed.");
+    mainEditBox->AppendText(str);
     SetStatusText("Item removed from BST");
 }
 
@@ -1132,27 +1147,127 @@ void AdtFrame::OnPostorderBST(wxCommandEvent& event){
 // =======================  AVL menu ======================= 
 void AdtFrame::OnCreateAVL(wxCommandEvent& event){
     // Create a new AVL
+    rec insertRec;
+
+    dialogBox* inputDialog = new dialogBox("Inserting into the AVL Tree", wxPoint(200,200), wxSize(310,375));
+    if (inputDialog->ShowModal() == wxID_OK){
+
+        insertRec.rank = inputDialog->rankSpinBox->GetValue();
+        strncpy(insertRec.name, (const char*)inputDialog->nameTextBox->GetValue().mb_str(), 20);
+        strncpy(insertRec.nationality, (const char*)inputDialog->nationalityComboBox->GetValue().mb_str(), 20);
+        insertRec.score = inputDialog->scoreSpinBox->GetValue();
+        strncpy(insertRec.opponent, (const char*)inputDialog->opponentComboBox->GetValue().mb_str(), 15);
+        insertRec.year = inputDialog->yearSpinBox->GetValue();
+
+        mainEditBox->Clear();
+        mainEditBox->AppendText(stringifyRecord(insertRec));
+        dataAVL->insert(insertRec.rank, insertRec.name, insertRec.nationality, insertRec.score, insertRec.opponent, insertRec.year);
+    }
+    else {
+        inputDialog->Close();
+    }
+    inputDialog->Destroy();
+    SetStatusText("Inserted new record into the AVL Tree");
 }
 
 void AdtFrame::OnAddDataAVL(wxCommandEvent& event){
     // Add an item to the AVL
-    // Austrailia players only********************************************************
+    rec record;
+    int count = 0;
+    fstream datafile(currentFilePath.mb_str(), ios::in|ios::binary);
+    if (datafile.is_open()){
+        mainEditBox->Clear();
+        while (!datafile.eof()){
+            datafile.read(reinterpret_cast<char*>(&record), sizeof(rec));
+            if (strstr(record.nationality, "Australia")){
+                count++;
+                dataAVL->insert(record.rank, record.name, record.nationality, record.score, record.opponent, record.year);
+            }
+        }
+        string msg = to_string(count);
+        msg.append(" records were added to the AVL Tree");
+        wxString wxMsg(msg.c_str(), wxConvUTF8);
+        mainEditBox->AppendText(wxMsg);
+        SetStatusText("Added file records to AVL Tree");
+    }
+    else {
+        mainEditBox->AppendText("\n\n\t\tNo Data File Opened as Yet...\n\n");
+        return;
+    }
 }
 
 void AdtFrame::OnDeleteDataAVL(wxCommandEvent& event){
     // Delete an item from the AVL
+    int theRank;
+    mainEditBox->Clear();
+    removeDialogBox* removeDialog = new removeDialogBox("Select rank to remove", wxPoint(200,200), wxSize(310,175));
+    if (removeDialog->ShowModal() == wxID_OK){
+        theRank = removeDialog->rankSpinBox->GetValue();
+        dataAVL->remove(theRank);
+    }
+    else {
+    removeDialog->Close();
+    }
+    removeDialog->Destroy();
+    wxString str ="Record with rank ";
+    str.append(to_string(theRank));
+    str.append(" removed.");
+    mainEditBox->AppendText(str);
+    SetStatusText("Item removed from AVL Tree");
 }
 
 void AdtFrame::OnInorderAVL(wxCommandEvent& event){
     // Inorder traversal of the AVL
+    mainEditBox->Clear();
+    string record = dataAVL->inorder();
+    if (record != ""){
+        string heading = "Rank\tName\t\tNationality\t\tScore\t\tOpponent\t\tYear\n";
+        heading.append("===================================================================\n");
+        wxString headingLine(heading.c_str(), wxConvUTF8);
+        mainEditBox->AppendText(headingLine);
+        SetStatusText("AVL Inorder");
+    }
+    else {
+        record = "AVL Tree is empty";
+    }
+    wxString wxRecord(record.c_str(), wxConvUTF8);
+    mainEditBox->AppendText(wxRecord);
 }
 
 void AdtFrame::OnPreorderAVL(wxCommandEvent& event){
     // Preorder traversal of the AVL
+    mainEditBox->Clear();
+    string record = dataAVL->preorder();
+    if (record != ""){
+        string heading = "Rank\tName\t\tNationality\t\tScore\t\tOpponent\t\tYear\n";
+        heading.append("===================================================================\n");
+        wxString headingLine(heading.c_str(), wxConvUTF8);
+        mainEditBox->AppendText(headingLine);
+        SetStatusText("AVL Preorder");
+    }
+    else {
+        record = "AVL Tree is empty";
+    }
+    wxString wxRecord(record.c_str(), wxConvUTF8);
+    mainEditBox->AppendText(wxRecord);
 }
 
 void AdtFrame::OnPostorderAVL(wxCommandEvent& event){
     // Postorder traversal of the AVL
+    mainEditBox->Clear();
+    string record = dataAVL->postorder();
+    if (record != ""){
+        string heading = "Rank\tName\t\tNationality\t\tScore\t\tOpponent\t\tYear\n";
+        heading.append("===================================================================\n");
+        wxString headingLine(heading.c_str(), wxConvUTF8);
+        mainEditBox->AppendText(headingLine);
+        SetStatusText("AVL Postorder");
+    }
+    else {
+        record = "AVL Tree is empty";
+    }
+    wxString wxRecord(record.c_str(), wxConvUTF8);
+    mainEditBox->AppendText(wxRecord);
 }
 
 // =======================  Heap menu ======================= 
