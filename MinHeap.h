@@ -29,16 +29,11 @@ class MinHeap{
         // Deconstructor
         ~MinHeap();
 
-        void addMaxHeap(int, string, string, int, string, int);
         void addMinHeap(int, string, string, int, string, int);
-        void maxHeapify(unsigned int);
         void minHeapify(unsigned int);
-        void deleteMaxHeapVal(int);
         void deleteMinHeapVal(int);
-        void removeMaxRoot();
         void removeMinRoot();
         string displayHeap();
-        string sortMaxHeap();
         string sortMinHeap();                
 };
 #endif
