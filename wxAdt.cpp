@@ -491,14 +491,37 @@ string stringifyRecord(rec Record){
 void AdtFrame::OnOpen(wxCommandEvent& event){
     // Create an open a file dialog
     SetStatusText("Opening file...");
-    wxFileDialog *openDialog = new wxFileDialog(this, "Choose a file to open", wxEmptyString, wxEmptyString, "Data Files (*.dat)|*.dat|All files (*.*)|*.*", wxFD_OPEN, wxDefaultPosition);
+    wxFileDialog *openDialog = new wxFileDialog(this, "Choose a file to open", wxEmptyString, wxEmptyString, "Data Files (*.dat)|*.dat|Text (*.txt)|*.txt|All files (*.*)|*.*", wxFD_OPEN, wxDefaultPosition);
     if (openDialog->ShowModal() == wxID_OK){
         currentFilePath = openDialog->GetPath();
         fileNameTextBox->Clear();
         fileNameTextBox->AppendText(currentFilePath);
         SetTitle(wxString("COMP2611 - Data Structures: 415001493"));
+        string heading = "";
+    string player = "";
+    rec record;
+    fstream datafile(currentFilePath.mb_str(), ios::in|ios::binary);
+    if (datafile.is_open()){
+        heading = "Rank\tName\t\tNationality\t\tScore\t\tOpponent\t\tYear\n";
+        heading.append("===================================================================\n");
+        mainEditBox->Clear();
+        wxString headingLine(heading.c_str(), wxConvUTF8);
+        mainEditBox->AppendText(headingLine);
+        while (!datafile.eof()){
+            datafile.read(reinterpret_cast<char*>(&record), sizeof(rec));
+            player = stringifyRecord(record);
+            wxString wxRecord(player.c_str(), wxConvUTF8);
+            mainEditBox->AppendText(wxRecord);
+            player = "";
+        }
     }
-    mainEditBox->Clear();
+    else {
+        mainEditBox->AppendText("\n\n\t\tNo Data File Opened as Yet...\n\n");
+        return;
+    }
+    }
+    else
+        mainEditBox->Clear();
     SetStatusText("Opened File");
 }
 
@@ -1382,4 +1405,5 @@ void AdtFrame::OnDeleteSetB(wxCommandEvent& event){
 // =======================  Help menu ======================= 
 void AdtFrame::OnAbout(wxCommandEvent& event){
     // Show information about the application
+    wxMessageBox("Developed by Dwayne Brathwaite\nWritten in C++ & wxWidgets 3\ncompiled on a x64 Linux PC", "&Ok", wxOK | wxICON_INFORMATION, this);
 }
