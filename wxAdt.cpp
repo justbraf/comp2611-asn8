@@ -13,6 +13,7 @@
 #include "Deque.h"
 #include "BSTree.h"
 #include "AVLTree.h"
+#include "RBT.h"
 #include <iostream>
 #include <fstream>
 #include <string>
