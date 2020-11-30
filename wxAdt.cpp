@@ -13,10 +13,9 @@
 #include "Deque.h"
 #include "BSTree.h"
 #include "AVLTree.h"
+#include "MinHeap.h"
 #include "RBT.h"
-#include <iostream>
 #include <fstream>
-#include <string>
 
 
 struct rec {
@@ -35,6 +34,7 @@ Stack* dataStack = new Stack();
 Deque* dataDQ = new Deque();
 BSTree* dataBST = new BSTree();
 AVLTree* dataAVL = new AVLTree();
+MinHeap* dataMH = new MinHeap();
 
 class AdtApp: public wxApp{
     // application to start
@@ -471,7 +471,6 @@ AdtFrame::AdtFrame (const wxString& title, const wxPoint& pos, const wxSize& siz
 // convert a single record into a continuous string
 string stringifyRecord(rec Record){
     string player;
-    int nameSize = 0;
     player = to_string(Record.rank);
     player.append("\t\t");
     player.append(Record.name);
@@ -1297,23 +1296,111 @@ void AdtFrame::OnPostorderAVL(wxCommandEvent& event){
 // =======================  Heap menu ======================= 
 void AdtFrame::OnCreateHeap(wxCommandEvent& event){
     // Create a new Heap
+    rec insertRec;
+
+    dialogBox* inputDialog = new dialogBox("Inserting into the MinHeap", wxPoint(200,200), wxSize(310,375));
+    if (inputDialog->ShowModal() == wxID_OK){
+
+        insertRec.rank = inputDialog->rankSpinBox->GetValue();
+        strncpy(insertRec.name, (const char*)inputDialog->nameTextBox->GetValue().mb_str(), 20);
+        strncpy(insertRec.nationality, (const char*)inputDialog->nationalityComboBox->GetValue().mb_str(), 20);
+        insertRec.score = inputDialog->scoreSpinBox->GetValue();
+        strncpy(insertRec.opponent, (const char*)inputDialog->opponentComboBox->GetValue().mb_str(), 15);
+        insertRec.year = inputDialog->yearSpinBox->GetValue();
+
+        mainEditBox->Clear();
+        mainEditBox->AppendText(stringifyRecord(insertRec));
+        dataMH->addMinHeap(insertRec.rank, insertRec.name, insertRec.nationality, insertRec.score, insertRec.opponent, insertRec.year);
+    }
+    else {
+        inputDialog->Close();
+    }
+    inputDialog->Destroy();
+    SetStatusText("Inserted new record into the MinHeap");
 }
 
 void AdtFrame::OnAddDataHeap(wxCommandEvent& event){
     // Add an item to the Heap
-    // South Africa players only********************************************************
+    rec record;
+    int count = 0;
+    fstream datafile(currentFilePath.mb_str(), ios::in|ios::binary);
+    if (datafile.is_open()){
+        mainEditBox->Clear();
+        while (!datafile.eof()){
+            datafile.read(reinterpret_cast<char*>(&record), sizeof(rec));
+            if (strstr(record.nationality, "South Africa")){
+                count++;
+                dataMH->addMinHeap(record.rank, record.name, record.nationality, record.score, record.opponent, record.year);
+            }
+        }
+        string msg = to_string(count);
+        msg.append(" records were added to the Min Heap");
+        wxString wxMsg(msg.c_str(), wxConvUTF8);
+        mainEditBox->AppendText(wxMsg);
+        SetStatusText("Added file records to Min Heap");
+    }
+    else {
+        mainEditBox->AppendText("\n\n\t\tNo Data File Opened as Yet...\n\n");
+        return;
+    }
 }
 
 void AdtFrame::OnDeleteDataHeap(wxCommandEvent& event){
     // Delete an item from the Heap
+    int theRank;
+    mainEditBox->Clear();
+    removeDialogBox* removeDialog = new removeDialogBox("Select rank to remove", wxPoint(200,200), wxSize(310,175));
+    if (removeDialog->ShowModal() == wxID_OK){
+        theRank = removeDialog->rankSpinBox->GetValue();
+        dataMH->deleteMinHeapVal(theRank);
+    }
+    else {
+    removeDialog->Close();
+    }
+    removeDialog->Destroy();
+    wxString str ="Record with rank ";
+    str.append(to_string(theRank));
+    str.append(" removed.");
+    mainEditBox->AppendText(str);
+    SetStatusText("Item removed from MinHeap");
 }
 
 void AdtFrame::OnDisplayAllHeap(wxCommandEvent& event){
     // Show all items in the Heap
+    mainEditBox->Clear();
+    string record = dataMH->displayHeap();
+    if (record != ""){
+        mainEditBox->AppendText("Showing all records in the MinHeap\n\n");
+        string heading = "Rank\tName\t\tNationality\t\tScore\t\tOpponent\t\tYear\n";
+        heading.append("===================================================================\n");
+        wxString headingLine(heading.c_str(), wxConvUTF8);
+        mainEditBox->AppendText(headingLine);
+        SetStatusText("Showing all records in the MinHeap");
+    }
+    else {
+        record = "MinHeap is empty";
+    }
+    wxString wxRecord(record.c_str(), wxConvUTF8);
+    mainEditBox->AppendText(wxRecord);
 }
 
 void AdtFrame::OnHeapSort(wxCommandEvent& event){
     // Sort the Heap
+    mainEditBox->Clear();
+    string record = dataMH->sortMinHeap();
+    if (record != ""){
+        mainEditBox->AppendText("Sorting records in the MinHeap\n\n");
+        string heading = "Rank\tName\t\tNationality\t\tScore\t\tOpponent\t\tYear\n";
+        heading.append("===================================================================\n");
+        wxString headingLine(heading.c_str(), wxConvUTF8);
+        mainEditBox->AppendText(headingLine);
+        SetStatusText("Sorting records in the MinHeap");
+    }
+    else {
+        record = "MinHeap is empty";
+    }
+    wxString wxRecord(record.c_str(), wxConvUTF8);
+    mainEditBox->AppendText(wxRecord);
 }
 
 // =======================  RB menu ======================= 

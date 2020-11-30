@@ -4,6 +4,7 @@
 #include "MinHeap.h"
 #include <stdio.h>
 #include <cstring>
+#include <iostream>
 
 void MinHeap::addMinHeap(int rnum, string nstr, string natstr, int snum, string oppstr, int yrnum){
     record addRec;
@@ -69,7 +70,7 @@ void MinHeap::removeMinRoot(){
 string MinHeap::displayHeap(){
     string str = "";
     for (int x = 1; x < elements.size(); x++){
-        str = to_string(elements[x].rank);
+        str.append(to_string(elements[x].rank));
         str.append("\t\t");
         str.append(elements[x].name);
         str.append("\t\t");
@@ -82,14 +83,13 @@ string MinHeap::displayHeap(){
         str.append(to_string(elements[x].year));
         str.append("\n");
     }
-    str.append("\n");
     return str;
 }
 
 string MinHeap::sortMinHeap(){
     string str ="";
     while (elements.size() > 1){
-        str = to_string(elements[1].rank);
+        str.append(to_string(elements[1].rank));
         str.append("\t\t");
         str.append(elements[1].name);
         str.append("\t\t");
@@ -103,6 +103,5 @@ string MinHeap::sortMinHeap(){
         str.append("\n");
         removeMinRoot();
     }
-    str.append("\n");
     return str;
 }
